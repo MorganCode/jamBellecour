@@ -1,5 +1,5 @@
 <ion-content>
-  <div class="login" [hidden]="isStarted">
+  <!-- <div class="login" [hidden]="isStarted">
     <div class="login not-connected" [hidden]="isConnected">
       <input [(ngModel)]="userName" placeholder="Votre pseudo" />
       <input [(ngModel)]="roomName" placeholder="Votre code" />
@@ -22,16 +22,18 @@
     </div>
   </div>
 
-  <div class="game" [hidden]="!isStarted">
-    <div id="game"></div>
-    <div class="buttons phone-only">
-      <!-- <ion-button (touchstart)="leftStart($event)" (touchend)="leftEnd($event)"
-        >Left</ion-button
-      >
-      <ion-button (touchstart)="rightStart($event)" (touchend)="rightEnd($event)"
+  <div class="game" [hidden]="!isStarted"> -->
+  <div id="game"></div>
+  <div class="buttons phone-only">
+    <ion-button (touchstart)="upStart($event)" (touchend)="upEnd($event)"
+      >up</ion-button
+    >
+    <!-- <ion-button
+        (touchstart)="rightStart($event)"
+        (touchend)="rightEnd($event)"
         >Right</ion-button
       >
       <ion-button color="danger">Jump</ion-button> -->
-    </div>
   </div>
+  <!-- </div> -->
 </ion-content>

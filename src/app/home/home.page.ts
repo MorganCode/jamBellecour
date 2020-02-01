@@ -10,12 +10,9 @@ let game;
 // Background
 let background;
 // Player
-let player;
+let goblin;
 // Controler
-let mobileCursors = {
-  left: false,
-  right: false
-};
+let isMoving = 0;
 
 @Component({
   selector: "app-home",
@@ -98,8 +95,8 @@ export class HomePage {
   // PHASER
   // Preload this game
   preload() {
-    game.load.image("background", "assets/phaser/Arena_test.png");
-    game.load.image("player", "assets/phaser/player.png");
+    game.load.image("background", "assets/phaser/arena.png");
+    game.load.image("goblin", "assets/phaser/player.png");
   }
 
   create() {
@@ -120,23 +117,36 @@ export class HomePage {
     background = game.add.image(CONSTANTS.posX, CONSTANTS.posY, "background");
     background.scale.set(CONSTANTS.ratio);
 
-    // Player
-    player = game.add.image(0, 0, "player");
-    // this.player.anchor.setTo(0.5, 0.5);
-    // this.game.physics.enable(this.player, Phaser.Physics.ARCADE);
+    // goblin
+    goblin = game.add.sprite(200, 600, "goblin");
+    goblin.scale.set(2);
+    //  We need to enable physics on the player
+    game.physics.arcade.enable(goblin);
+    //  Player physics properties. Give the little guy a slight bounce.
+    goblin.body.collideWorldBounds = true;
   }
 
   // Update this game from events
   update() {
-    if (that.isStarted != undefined) {
-      console.log(that.isStarted);
+    goblin.body.velocity.y = 0;
+    if (isMoving < 0) {
+      goblin.body.velocity.y = isMoving;
+      isMoving += 100;
     }
-    if (that.isInitialized != undefined) {
-      console.log(that.isInitialized);
-    }
-    if (that.isStarted && !that.isInitialized) {
-      console.log(player);
-      that.isInitialized = true;
-    }
+    //   if (that.isStarted != undefined) {
+    //     console.log(that.isStarted);
+    //   }
+    //   if (that.isInitialized != undefined) {
+    //     console.log(that.isInitialized);
+    //   }
+    //   if (that.isStarted && !that.isInitialized) {
+    //     console.log(player);
+    //     that.isInitialized = true;
+    //   }
   }
+
+  upStart(event) {
+    isMoving = -2100;
+  }
+  upEnd(event) {}
 }
