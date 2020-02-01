@@ -11,11 +11,12 @@
     <div class="login connected" [hidden]="!isConnected">
       <p>You joined the chat as {{ userName }}</p>
 
-      <label [hidden]="players != 2"
-        >Vous n'êtes pas assez nombreux pour lancer une partie. <br />En attente
-        d'autres joueurs...</label
-      >
-      <button [hidden]="players == 2" (click)="startGame()">
+      <label [hidden]="players == 2">
+        Vous n'êtes pas assez nombreux pour lancer une partie. <br />
+        Actuellement {{players}} joueurs <br />
+        En attente d'autres joueurs...
+      </label>
+      <button [hidden]="players != 2" (click)="startGame()">
         GO TO GAME !
       </button>
     </div>
