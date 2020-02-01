@@ -158,8 +158,6 @@ export class HomePage {
     areas.physicsBodyType = Phaser.Physics.ARCADE;
 
     that.createAreas();
-
-    //  Player physics properties. Give the little guy a slight bounce.
   }
 
   createAreas() {
@@ -195,16 +193,7 @@ export class HomePage {
       if (isMoving.y > 1) isMoving.y = 0;
       console.log(isMoving);
     }
-    //   if (that.isStarted != undefined) {
-    //     console.log(that.isStarted);
-    //   }
-    //   if (that.isInitialized != undefined) {
-    //     console.log(that.isInitialized);
-    //   }
-    //   if (that.isStarted && !that.isInitialized) {
-    //     console.log(player);
-    //     that.isInitialized = true;
-    //   }
+
     game.physics.arcade.overlap(
       goblin,
       areas,
@@ -213,11 +202,9 @@ export class HomePage {
       this
     );
   }
+
   collisionHandler(obj1, obj2) {
     console.log("test");
     obj2.kill();
-  }
-  upStart(event) {
-    isMoving = shotVector;
   }
 }
