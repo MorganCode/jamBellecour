@@ -1,6 +1,9 @@
 import { Component } from "@angular/core";
 import { Socket } from "ngx-socket-io";
 import { ToastController } from "@ionic/angular";
+import { CONSTANTS } from "../../constants";
+
+declare let Phaser;
 
 @Component({
   selector: "app-home",
@@ -8,44 +11,74 @@ import { ToastController } from "@ionic/angular";
   styleUrls: ["home.page.scss"]
 })
 export class HomePage {
-  message = "";
-  messages = [];
-  currentUser = "";
+  userName = "";
+  roomName = "";
+  players = 0;
+  isConnected = false;
+  isStarted = false;
 
-  constructor(private socket: Socket, private toastCtrl: ToastController) {}
+  // Phaser needs
+  that;
+  game;
+  // Background
+  background;
+  // Device
+  heightDevice;
+  widthDevice;
+  // Player
+  player;
+  // Controler
+  mobileCursors = {
+    left: false,
+    right: false
+  };
 
-  ngOnInit() {
+  constructor(private socket: Socket, private toastCtrl: ToastController) {
+    this.that = Object.create(this.constructor.prototype);
+  }
+
+  ionViewDidEnter() {
+    this.game = new Phaser.Game(
+      window.innerWidth,
+      window.innerHeight,
+      Phaser.AUTO,
+      "game",
+      {
+        preload: this.preload,
+        create: this.create,
+        update: this.update
+      }
+    );
+  }
+
+  connect() {
     this.socket.connect();
-
-    let name = `user-${new Date().getTime()}`;
-    this.currentUser = name;
-
-    this.socket.emit("set-name", name);
+    this.socket.emit("set-name", this.userName);
 
     this.socket.fromEvent("users-changed").subscribe(data => {
       let user = data["user"];
       if (data["event"] === "left") {
         this.showToast("User left: " + user);
+        this.players--;
       } else {
         this.showToast("User joined: " + user);
+        this.players++;
+        this.isConnected = true;
       }
-    });
-
-    this.socket.fromEvent("message").subscribe(message => {
-      this.messages.push(message);
     });
 
     this.socket.fromEvent("move").subscribe(({ x, y, user }) => {
       console.log("move received", x, y, user);
-      this.messages.push("" + x + y + user);
+    });
+
+    this.socket.fromEvent("startGame").subscribe(() => {
+      console.log("LETS GO");
+      this.isStarted = true;
     });
   }
 
-  sendMessage() {
-    this.socket.emit("send-message", { text: this.message });
-    this.message = "";
-    this.sendMove();
-    console.log("move sent");
+  startGame() {
+    this.socket.emit("start-game", this.roomName);
   }
 
   sendMove() {
@@ -64,4 +97,37 @@ export class HomePage {
     });
     toast.present();
   }
+
+  // PHASER
+  // Preload this game
+  preload() {
+    this.heightDevice = window.innerHeight;
+    this.widthDevice = window.innerWidth;
+    this.game.load.image("background", "assets/phaser/Arena_test.png");
+    this.game.load.image("ship", "assets/phaser/player.png");
+  }
+
+  create() {
+    const hRatio = window.innerHeight / CONSTANTS.bgHeight;
+    const wRatio = window.innerWidth / CONSTANTS.bgWidth;
+
+    if (hRatio > wRatio) {
+      CONSTANTS.ratio = wRatio;
+      CONSTANTS.posY = ((hRatio - wRatio) * CONSTANTS.bgHeight) / 2;
+    } else {
+      CONSTANTS.ratio = hRatio;
+      CONSTANTS.posX = ((wRatio - hRatio) * CONSTANTS.bgWidth) / 2;
+    }
+
+    // Background
+    this.background = this.game.add.image(
+      CONSTANTS.posX,
+      CONSTANTS.posY,
+      "background"
+    );
+    this.background.scale.set(CONSTANTS.ratio);
+  }
+
+  // Update this game from events
+  update() {}
 }
