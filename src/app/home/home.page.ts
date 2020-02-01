@@ -35,7 +35,6 @@ export class HomePage {
   players = 0;
   isConnected = false;
   isStarted = false;
-  isInitialized = false;
 
   constructor(private socket: Socket, private toastCtrl: ToastController) {
     that = Object.create(this.constructor.prototype);
@@ -86,8 +85,6 @@ export class HomePage {
   }
 
   fireAim(event) {
-    console.log(event.changedTouches[0].screenX);
-    console.log(event.changedTouches[0].screenY);
     shotVector = {
       x: event.changedTouches[0].screenX,
       y: event.changedTouches[0].screenY
@@ -95,12 +92,12 @@ export class HomePage {
   }
 
   fireShoot(event) {
-    console.log(event.changedTouches[0].screenX);
-    console.log(event.changedTouches[0].screenY);
     shotVector = {
-      x: event.changedTouches[0].screenX - shotVector.x,
-      y: event.changedTouches[0].screenY - shotVector.y
+      x: (shotVector.x - event.changedTouches[0].screenX) * 10,
+      y: (shotVector.y - event.changedTouches[0].screenY) * 10
     };
+    console.log(shotVector);
+    isMoving = shotVector;
   }
 
   sendMove() {
@@ -172,11 +169,31 @@ export class HomePage {
 
   // Update this game from events
   update() {
-    goblin.body.velocity.y = 0;
+    goblin.body.velocity.x = isMoving.x;
+    goblin.body.velocity.y = isMoving.y;
     if (isMoving.x > 0) {
-      goblin.body.velocity = isMoving;
       isMoving.x -= shotVector.x / 10;
+      isMoving.x = Math.trunc(isMoving.x);
+      if (isMoving.x < 1) isMoving.x = 0;
+      console.log(isMoving);
+    }
+    if (isMoving.x < 0) {
+      isMoving.x -= shotVector.x / 10;
+      isMoving.x = Math.trunc(isMoving.x);
+      if (isMoving.x > 1) isMoving.x = 0;
+      console.log(isMoving);
+    }
+    if (isMoving.y > 0) {
       isMoving.y -= shotVector.y / 10;
+      isMoving.y = Math.trunc(isMoving.y);
+      if (isMoving.y < 1) isMoving.y = 0;
+      console.log(isMoving);
+    }
+    if (isMoving.y < 0) {
+      isMoving.y -= shotVector.y / 10;
+      isMoving.y = Math.trunc(isMoving.y);
+      if (isMoving.y > 1) isMoving.y = 0;
+      console.log(isMoving);
     }
     //   if (that.isStarted != undefined) {
     //     console.log(that.isStarted);
