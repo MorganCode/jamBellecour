@@ -2,50 +2,49 @@ import { Component } from "@angular/core";
 import { Socket } from "ngx-socket-io";
 import { ToastController } from "@ionic/angular";
 
+declare let Phaser;
+
 @Component({
   selector: "app-home",
   templateUrl: "home.page.html",
   styleUrls: ["home.page.scss"]
 })
 export class HomePage {
-  message = "";
-  messages = [];
-  currentUser = "";
+  userName = "";
+  roomName = "";
+  players = 0;
+  isConnected = false;
+  isStarted = false;
 
   constructor(private socket: Socket, private toastCtrl: ToastController) {}
 
-  ngOnInit() {
+  connect() {
     this.socket.connect();
-
-    let name = `user-${new Date().getTime()}`;
-    this.currentUser = name;
-
-    this.socket.emit("set-name", name);
+    this.socket.emit("set-name", this.userName);
 
     this.socket.fromEvent("users-changed").subscribe(data => {
       let user = data["user"];
       if (data["event"] === "left") {
         this.showToast("User left: " + user);
+        this.players--;
       } else {
         this.showToast("User joined: " + user);
+        this.players++;
+        this.isConnected = true;
       }
-    });
-
-    this.socket.fromEvent("message").subscribe(message => {
-      this.messages.push(message);
     });
 
     this.socket.fromEvent("move").subscribe(({ x, y, user }) => {
       console.log("move received", x, y, user);
-      this.messages.push("" + x + y + user);
+    });
+
+    this.socket.fromEvent("startGame").subscribe(() => {
+      console.log("LETS GO");
     });
   }
 
-  sendMessage() {
-    this.socket.emit("send-message", { text: this.message });
-    this.message = "";
-    this.sendMove();
-    console.log("move sent");
+  startGame() {
+    this.socket.emit("start-game", this.roomName);
   }
 
   sendMove() {
