@@ -1,14 +1,37 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content>
-  <div class="ion-padding">
-    The world is your oyster.
-    <p>If you get lost, the <a target="_blank" rel="noopener" href="https://ionicframework.com/docs/">docs</a> will be your guide.</p>
+  <div class="login" [hidden]="isStarted">
+    <div class="login not-connected" [hidden]="isConnected">
+      <input [(ngModel)]="userName" placeholder="Votre pseudo" />
+      <input [(ngModel)]="roomName" placeholder="Votre code" />
+      <button (click)="connect()">
+        CONNECT
+      </button>
+    </div>
+
+    <div class="login connected" [hidden]="!isConnected">
+      <p>You joined the chat as {{ userName }}</p>
+
+      <label [hidden]="players == 2">
+        Vous n'êtes pas assez nombreux pour lancer une partie. <br />
+        Actuellement {{players}} joueurs <br />
+        En attente d'autres joueurs...
+      </label>
+      <button [hidden]="players != 2" (click)="startGame()">
+        GO TO GAME !
+      </button>
+    </div>
+  </div>
+
+  <div class="game" [hidden]="!isStarted">
+    <div id="game"></div>
+    <div class="buttons phone-only">
+      <!-- <ion-button (touchstart)="leftStart($event)" (touchend)="leftEnd($event)"
+        >Left</ion-button
+      >
+      <ion-button (touchstart)="rightStart($event)" (touchend)="rightEnd($event)"
+        >Right</ion-button
+      >
+      <ion-button color="danger">Jump</ion-button> -->
+    </div>
   </div>
 </ion-content>
