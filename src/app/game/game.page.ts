@@ -11,7 +11,7 @@ let background;
 let heightDevice;
 let widthDevice;
 @Component({
-  selector: "app-home",
+  selector: "app-game",
   templateUrl: "game.page.html",
   styleUrls: ["game.page.scss"]
 })
@@ -45,6 +45,7 @@ export class GamePage {
     console.log(widthDevice);
     // Set background
     background = game.add.image(10, 0, "background");
+    console.log(background);
     background.scale.set(0.35);
     // back.smoothed = false;
   }
