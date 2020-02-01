@@ -111,26 +111,21 @@ export class HomePage {
     const hRatio = window.innerHeight / CONSTANTS.bgHeight;
     const wRatio = window.innerWidth / CONSTANTS.bgWidth;
 
-    let finalRatio = 0;
-    let posX = 0;
-    let posY = 0;
-
-    console.log("hRatio", hRatio);
-    console.log("wRatio", wRatio);
-
     if (hRatio > wRatio) {
-      console.log("bandes noires sur le haut et le bas");
-      finalRatio = wRatio;
-      posY = ((hRatio - wRatio) * CONSTANTS.bgHeight) / 2;
+      CONSTANTS.ratio = wRatio;
+      CONSTANTS.posY = ((hRatio - wRatio) * CONSTANTS.bgHeight) / 2;
     } else {
-      console.log("bandes noires sur les cotés");
-      finalRatio = hRatio;
-      posX = ((wRatio - hRatio) * CONSTANTS.bgWidth) / 2;
+      CONSTANTS.ratio = hRatio;
+      CONSTANTS.posX = ((wRatio - hRatio) * CONSTANTS.bgWidth) / 2;
     }
 
     // Background
-    this.background = this.game.add.image(posX, posY, "background");
-    this.background.scale.set(finalRatio);
+    this.background = this.game.add.image(
+      CONSTANTS.posX,
+      CONSTANTS.posY,
+      "background"
+    );
+    this.background.scale.set(CONSTANTS.ratio);
   }
 
   // Update this game from events
