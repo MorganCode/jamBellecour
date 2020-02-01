@@ -11,6 +11,8 @@ let game;
 let background;
 // Player
 let goblin;
+// area
+let areas;
 // Controler
 let isMoving = {
   x: 0,
@@ -120,6 +122,7 @@ export class HomePage {
   preload() {
     game.load.image("background", "assets/phaser/arena.png");
     game.load.image("goblin", "assets/phaser/player.png");
+    game.load.image("goblin2", "assets/phaser/player.png");
   }
 
   create() {
@@ -140,13 +143,28 @@ export class HomePage {
     background = game.add.image(CONSTANTS.posX, CONSTANTS.posY, "background");
     background.scale.set(CONSTANTS.ratio);
 
-    // goblin
+    // Goblin
     goblin = game.add.sprite(200, 600, "goblin");
     goblin.scale.set(2);
     //  We need to enable physics on the player
     game.physics.arcade.enable(goblin);
     //  Player physics properties. Give the little guy a slight bounce.
+    goblin.body.bounce.y = 0.2;
     goblin.body.collideWorldBounds = true;
+
+    // area
+    areas = game.add.group();
+    areas.enableBody = true;
+    areas.physicsBodyType = Phaser.Physics.ARCADE;
+
+    that.createAreas();
+
+    //  Player physics properties. Give the little guy a slight bounce.
+  }
+
+  createAreas() {
+    let area = areas.create(200, 300, "goblin2");
+    area.scale.set(2);
   }
 
   // Update this game from events
@@ -177,10 +195,29 @@ export class HomePage {
       if (isMoving.y > 1) isMoving.y = 0;
       console.log(isMoving);
     }
+    //   if (that.isStarted != undefined) {
+    //     console.log(that.isStarted);
+    //   }
+    //   if (that.isInitialized != undefined) {
+    //     console.log(that.isInitialized);
+    //   }
+    //   if (that.isStarted && !that.isInitialized) {
+    //     console.log(player);
+    //     that.isInitialized = true;
+    //   }
+    game.physics.arcade.overlap(
+      goblin,
+      areas,
+      that.collisionHandler,
+      null,
+      this
+    );
   }
-
+  collisionHandler(obj1, obj2) {
+    console.log("test");
+    obj2.kill();
+  }
   upStart(event) {
     isMoving = shotVector;
   }
-  upEnd(event) {}
 }

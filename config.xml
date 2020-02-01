@@ -100,5 +100,9 @@
     <plugin name="cordova-plugin-splashscreen" spec="5.0.2" />
     <plugin name="cordova-plugin-ionic-webview" spec="^4.0.0" />
     <plugin name="cordova-plugin-ionic-keyboard" spec="^2.0.5" />
+<<<<<<< HEAD
+    <allow-navigation href="http://localhost:8100" sessionid="60bcc26b" />
+=======
     <allow-navigation href="http://localhost:8100" sessionid="ad02c964" />
+>>>>>>> dev
 </widget>
