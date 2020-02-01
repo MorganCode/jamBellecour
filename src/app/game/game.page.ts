@@ -3,21 +3,26 @@ import { MenuController } from "@ionic/angular";
 
 declare let Phaser;
 
-let that;
-let game;
-// Background
-let background;
-// Device
-let heightDevice;
-let widthDevice;
 @Component({
   selector: "app-game",
   templateUrl: "game.page.html",
   styleUrls: ["game.page.scss"]
 })
 export class GamePage {
+  that;
+  game;
+  // Background
+  background;
+  // Device
+  heightDevice;
+  widthDevice;
+
   constructor(private menuCtrl: MenuController) {
-    game = new Phaser.Game(
+    this.that = Object.create(this.constructor.prototype);
+  }
+
+  ionViewDidEnter() {
+    this.game = new Phaser.Game(
       window.innerWidth,
       window.innerHeight,
       Phaser.AUTO,
@@ -29,24 +34,22 @@ export class GamePage {
         // render: this.render
       }
     );
-
-    that = Object.create(this.constructor.prototype);
   }
 
   // Preload this game
   preload() {
-    heightDevice = window.innerHeight;
-    widthDevice = window.innerWidth;
-    game.load.image("background", "assets/phaser/Arena_test.png");
+    this.heightDevice = window.innerHeight;
+    this.widthDevice = window.innerWidth;
+    this.game.load.image("background", "assets/phaser/Arena_test.png");
   }
 
   create() {
-    console.log(heightDevice);
-    console.log(widthDevice);
+    console.log(this.heightDevice);
+    console.log(this.widthDevice);
     // Set background
-    background = game.add.image(10, 0, "background");
-    console.log(background);
-    background.scale.set(0.35);
+    this.background = this.game.add.image(10, 0, "background");
+    console.log(this.background);
+    this.background.scale.set(0.35);
     // back.smoothed = false;
   }
 }
