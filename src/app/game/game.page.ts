@@ -12,8 +12,8 @@ let heightDevice;
 let widthDevice;
 @Component({
   selector: "app-home",
-  templateUrl: "home.page.html",
-  styleUrls: ["home.page.scss"]
+  templateUrl: "game.page.html",
+  styleUrls: ["game.page.scss"]
 })
 export class HomePage {
   constructor(private menuCtrl: MenuController) {
@@ -21,7 +21,7 @@ export class HomePage {
       window.innerWidth,
       window.innerHeight,
       Phaser.AUTO,
-      "space-invaders",
+      "game",
       {
         preload: this.preload,
         create: this.create
