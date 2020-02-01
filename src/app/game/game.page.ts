@@ -48,7 +48,7 @@ export class GamePage {
   preload() {
     this.heightDevice = window.innerHeight;
     this.widthDevice = window.innerWidth;
-    this.game.load.image("background", "assets/phaser/Arena_test.png");
+    this.game.load.image("background", "assets/phaser/Arena.png");
     this.game.load.image("ship", "assets/phaser/player.png");
   }
 
