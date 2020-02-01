@@ -12,7 +12,15 @@ let background;
 // Player
 let goblin;
 // Controler
-let isMoving = 0;
+let isMoving = {
+  x: 0,
+  y: 0
+};
+// Shot
+let shotVector = {
+  x: 0,
+  y: 0
+};
 
 @Component({
   selector: "app-home",
@@ -75,6 +83,24 @@ export class HomePage {
     this.socket.emit("start-game", this.roomName);
   }
 
+  fireAim(event) {
+    console.log(event.changedTouches[0].screenX);
+    console.log(event.changedTouches[0].screenY);
+    shotVector = {
+      x: event.changedTouches[0].screenX,
+      y: event.changedTouches[0].screenY
+    };
+  }
+
+  fireShoot(event) {
+    console.log(event.changedTouches[0].screenX);
+    console.log(event.changedTouches[0].screenY);
+    shotVector = {
+      x: event.changedTouches[0].screenX - shotVector.x,
+      y: event.changedTouches[0].screenY - shotVector.y
+    };
+  }
+
   sendMove() {
     this.socket.emit("send-move", { x: 4, y: 4 });
   }
@@ -129,9 +155,10 @@ export class HomePage {
   // Update this game from events
   update() {
     goblin.body.velocity.y = 0;
-    if (isMoving < 0) {
-      goblin.body.velocity.y = isMoving;
-      isMoving += 100;
+    if (isMoving.x > 0) {
+      goblin.body.velocity = isMoving;
+      isMoving.x -= shotVector.x / 10;
+      isMoving.y -= shotVector.y / 10;
     }
     //   if (that.isStarted != undefined) {
     //     console.log(that.isStarted);
@@ -146,7 +173,7 @@ export class HomePage {
   }
 
   upStart(event) {
-    isMoving = -2100;
+    isMoving = shotVector;
   }
   upEnd(event) {}
 }
