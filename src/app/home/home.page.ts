@@ -13,6 +13,9 @@ let background;
 let goblin;
 // Controler
 let isMoving = 0;
+// area
+let area;
+let areas;
 
 @Component({
   selector: "app-home",
@@ -97,6 +100,7 @@ export class HomePage {
   preload() {
     game.load.image("background", "assets/phaser/arena.png");
     game.load.image("goblin", "assets/phaser/player.png");
+    game.load.image("goblin2", "assets/phaser/player.png");
   }
 
   create() {
@@ -117,13 +121,27 @@ export class HomePage {
     background = game.add.image(CONSTANTS.posX, CONSTANTS.posY, "background");
     background.scale.set(CONSTANTS.ratio);
 
-    // goblin
+    // Goblin
     goblin = game.add.sprite(200, 600, "goblin");
     goblin.scale.set(2);
     //  We need to enable physics on the player
     game.physics.arcade.enable(goblin);
     //  Player physics properties. Give the little guy a slight bounce.
+    goblin.body.bounce.y = 0.2;
     goblin.body.collideWorldBounds = true;
+
+    areas = game.add.group();
+    areas.enableBody = true;
+    for (var i = 0; i < 6; i++) {
+      area = areas.create(i * 70, 220, "goblin2");
+      area.scale.set(2);
+      area.body.bounce.y = 0.7 + Math.random() * 0.2;
+    }
+    function coli(goblin, area) {
+      area.kill();
+    }
+    //  Player physics properties. Give the little guy a slight bounce.
+    game.physics.arcade.overlap(goblin, areas, coli, null, this);
   }
 
   // Update this game from events
@@ -148,5 +166,4 @@ export class HomePage {
   upStart(event) {
     isMoving = -2100;
   }
-  upEnd(event) {}
 }
