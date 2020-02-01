@@ -14,7 +14,6 @@ let goblin;
 // Controler
 let isMoving = 0;
 // area
-let area;
 let areas;
 
 @Component({
@@ -130,18 +129,19 @@ export class HomePage {
     goblin.body.bounce.y = 0.2;
     goblin.body.collideWorldBounds = true;
 
+    // area
     areas = game.add.group();
     areas.enableBody = true;
-    for (var i = 0; i < 6; i++) {
-      area = areas.create(i * 70, 220, "goblin2");
-      area.scale.set(2);
-      area.body.bounce.y = 0.7 + Math.random() * 0.2;
-    }
-    function coli(goblin, area) {
-      area.kill();
-    }
+    areas.physicsBodyType = Phaser.Physics.ARCADE;
+
+    that.createAreas();
+
     //  Player physics properties. Give the little guy a slight bounce.
-    game.physics.arcade.overlap(goblin, areas, coli, null, this);
+  }
+
+  createAreas() {
+    let area = areas.create(200, 300, "goblin2");
+    area.scale.set(2);
   }
 
   // Update this game from events
@@ -161,8 +161,18 @@ export class HomePage {
     //     console.log(player);
     //     that.isInitialized = true;
     //   }
+    game.physics.arcade.overlap(
+      goblin,
+      areas,
+      that.collisionHandler,
+      null,
+      this
+    );
   }
-
+  collisionHandler(obj1, obj2) {
+    console.log("test");
+    obj2.kill();
+  }
   upStart(event) {
     isMoving = -2100;
   }
