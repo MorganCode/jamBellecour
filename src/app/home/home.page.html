@@ -23,7 +23,11 @@
   </div>
 
   <div class="game" [hidden]="!isStarted"> -->
-  <div id="game"></div>
+  <div
+    id="game"
+    (touchstart)="fireAim($event)"
+    (touchend)="fireShoot($event)"
+  ></div>
   <div class="buttons phone-only">
     <ion-button (touchstart)="upStart($event)">up</ion-button>
     <!-- <ion-button
