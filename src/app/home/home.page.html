@@ -16,7 +16,7 @@
         Actuellement {{players}} joueurs <br />
         En attente d'autres joueurs...
       </label>
-      <button [hidden]="players != 2" (click)="startGame()">
+      <button [hidden]="players != 2" (click)="startGame($event)">
         GO TO GAME !
       </button>
     </div>

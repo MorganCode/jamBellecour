@@ -4,6 +4,18 @@ import { ToastController } from "@ionic/angular";
 import { CONSTANTS } from "../../constants";
 
 declare let Phaser;
+// Phaser needs
+let that;
+let game;
+// Background
+let background;
+// Player
+let player;
+// Controler
+let mobileCursors = {
+  left: false,
+  right: false
+};
 
 @Component({
   selector: "app-home",
@@ -16,29 +28,14 @@ export class HomePage {
   players = 0;
   isConnected = false;
   isStarted = false;
-
-  // Phaser needs
-  that;
-  game;
-  // Background
-  background;
-  // Device
-  heightDevice;
-  widthDevice;
-  // Player
-  player;
-  // Controler
-  mobileCursors = {
-    left: false,
-    right: false
-  };
+  isInitialized = false;
 
   constructor(private socket: Socket, private toastCtrl: ToastController) {
-    this.that = Object.create(this.constructor.prototype);
+    that = Object.create(this.constructor.prototype);
   }
 
   ionViewDidEnter() {
-    this.game = new Phaser.Game(
+    game = new Phaser.Game(
       window.innerWidth,
       window.innerHeight,
       Phaser.AUTO,
@@ -101,13 +98,13 @@ export class HomePage {
   // PHASER
   // Preload this game
   preload() {
-    this.heightDevice = window.innerHeight;
-    this.widthDevice = window.innerWidth;
-    this.game.load.image("background", "assets/phaser/Arena_test.png");
-    this.game.load.image("ship", "assets/phaser/player.png");
+    game.load.image("background", "assets/phaser/Arena_test.png");
+    game.load.image("player", "assets/phaser/player.png");
   }
 
   create() {
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+
     const hRatio = window.innerHeight / CONSTANTS.bgHeight;
     const wRatio = window.innerWidth / CONSTANTS.bgWidth;
 
@@ -120,14 +117,26 @@ export class HomePage {
     }
 
     // Background
-    this.background = this.game.add.image(
-      CONSTANTS.posX,
-      CONSTANTS.posY,
-      "background"
-    );
-    this.background.scale.set(CONSTANTS.ratio);
+    background = game.add.image(CONSTANTS.posX, CONSTANTS.posY, "background");
+    background.scale.set(CONSTANTS.ratio);
+
+    // Player
+    player = game.add.image(0, 0, "player");
+    // this.player.anchor.setTo(0.5, 0.5);
+    // this.game.physics.enable(this.player, Phaser.Physics.ARCADE);
   }
 
   // Update this game from events
-  update() {}
+  update() {
+    if (that.isStarted != undefined) {
+      console.log(that.isStarted);
+    }
+    if (that.isInitialized != undefined) {
+      console.log(that.isInitialized);
+    }
+    if (that.isStarted && !that.isInitialized) {
+      console.log(player);
+      that.isInitialized = true;
+    }
+  }
 }
