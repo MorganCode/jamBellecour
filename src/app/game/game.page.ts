@@ -15,7 +15,7 @@ let widthDevice;
   templateUrl: "game.page.html",
   styleUrls: ["game.page.scss"]
 })
-export class HomePage {
+export class GamePage {
   constructor(private menuCtrl: MenuController) {
     game = new Phaser.Game(
       window.innerWidth,
