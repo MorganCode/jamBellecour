@@ -16,8 +16,10 @@ let arrow;
 let lutin;
 // area
 let areas;
+let bringback = 0;
 // Controler
 let isMoving = { x: 0, y: 0 };
+let isWalking = { x: 0, y: 0 };
 // let isMovingX = false;
 // let isMovingY = false;
 // Shot
@@ -108,6 +110,7 @@ export class HomePage {
   fireShoot(event) {
     console.log(shotVector);
     isMoving = { x: shotVector.x * 10, y: shotVector.y * 10 };
+    isWalking = { x: -shotVector.x * 10, y: -shotVector.y * 10 };
     console.log(shotAngle);
     animationsToPlay.push({ obj: "canon", anim: "fire" });
     animationsToPlay.push({ obj: "lutin", anim: "fire" });
@@ -147,13 +150,11 @@ export class HomePage {
       100,
       100
     );
-    game.load.image("arrow", "assets/phaser/fleche_puissance.png");
-    game.load.image("lutinWalk", "assets/icon/lutin walk green.png");
-    game.load.image("lutinShot", "assets/icon/lutin shot green.png");
-    game.load.image("lutinStun", "assets/icon/lutin stun green.png");
+    game.load.image("arrow", "assets/phaser/fleche.png");
+    game.load.image("cristal", "assets/icon/cristal.png");
     game.load.spritesheet(
       "lutin",
-      "assets/phaser/spritesheet/canon.png",
+      "assets/phaser/spritesheet/lutin.png",
       100,
       100
     );
@@ -189,7 +190,8 @@ export class HomePage {
     game.physics.arcade.enable(canon);
     // canon.animations.add(NAME, FRAMES, TIME, REPEAT);
     canon.animations.add("load", [1, 2, 3, 4, 5, 6], 10, false);
-    canon.animations.add("fire", [7, 8, 9, 10, 11, 12], 10, false);
+    canon.animations.add("fire", [7, 8, 9, 10, 11, 12, 13], 10, false);
+    // canon.animations.add("fire", [7, 8, 9, 10, 11, 12], 10, false);
 
     // Fleches
     arrow = game.add.sprite(
@@ -219,8 +221,31 @@ export class HomePage {
     // lutin.animations.add(NAME, FRAMES, TIME, REPEAT);
     lutin.animations.add("fire", [0], 10, false);
     lutin.animations.add("stun", [1], 10, false);
-    lutin.animations.add("walk", [2], 10, false);
-    lutin.animations.add("idle", [3], 10, false);
+    lutin.animations.add(
+      "walk0",
+      [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+      2,
+      false
+    );
+    lutin.animations.add(
+      "walk1",
+      [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
+      2,
+      false
+    );
+    lutin.animations.add(
+      "walk2",
+      [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40],
+      2,
+      false
+    );
+    lutin.animations.add(
+      "walk3",
+      [41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53],
+      2,
+      false
+    );
+    lutin.animations.add("idle", [54], 10, false);
 
     lutin.scale.set(1);
     //  We need to enable physics on the player
@@ -231,33 +256,32 @@ export class HomePage {
   }
 
   createAreas() {
-    let area = areas.create(200, 300, "lutin2");
-    area.scale.set(2);
+    let area = areas.create(200, 300, "cristal");
+    area.scale.set(0.1);
   }
 
   // Update this game from events
   update() {
-    lutin.body.velocity.x = isMoving.x;
-    lutin.body.velocity.y = isMoving.y;
-
-    that.updateAiming();
-    that.updateShot();
-    that.updateAnimations();
-
-    game.physics.arcade.overlap(
-      lutin,
-      areas,
-      that.collisionHandler,
-      null,
-      this
-    );
+    // that.updateAiming();
+    // that.updateShot();
+    // that.updateAnimations();
+    // game.physics.arcade.overlap(
+    //   lutin,
+    //   areas,
+    //   that.collisionHandler,
+    //   null,
+    //   this
+    // );
   }
 
   updateAiming() {
     canon.angle = shotAngle;
+    arrow.angle = shotAngle;
     arrow.body.velocity = { x: 0, y: 0 };
     if (
       (shotVector.x != 0 || shotVector.y != 0) &&
+      isWalking.x == 0 &&
+      isWalking.y == 0 &&
       isMoving.x == 0 &&
       isMoving.y == 0
     ) {
@@ -273,6 +297,9 @@ export class HomePage {
 
   updateShot() {
     if (isMoving.x != 0 || isMoving.y != 0) {
+      lutin.body.velocity.x = isMoving.x;
+      lutin.body.velocity.y = isMoving.y;
+
       console.log(isMoving);
       lutin.angle = shotAngle;
       if (isMoving.x != 0) {
@@ -284,8 +311,6 @@ export class HomePage {
           (isMoving.x >= 0 && isMoving.x <= step)
         ) {
           isMoving.x = 0;
-          shotVector.x = 0;
-          // isMovingX = false;
         }
       }
       if (isMoving.y != 0) {
@@ -297,12 +322,43 @@ export class HomePage {
           (isMoving.y >= 0 && isMoving.y <= step)
         ) {
           isMoving.y = 0;
+        }
+      }
+    } else if (isWalking.x != 0 || isWalking.y != 0) {
+      animationsToPlay.push({ obj: "lutin", anim: "walk" + bringback });
+      lutin.body.velocity.x = isWalking.x;
+      lutin.body.velocity.y = isWalking.y;
+
+      console.log(isWalking);
+      lutin.angle = shotAngle;
+      if (isWalking.x != 0) {
+        let step = -shotVector.x / 4;
+        isWalking.x -= step;
+        isWalking.x = Math.trunc(isWalking.x);
+        if (
+          (isWalking.x <= 0 && isWalking.x >= step) ||
+          (isWalking.x >= 0 && isWalking.x <= step)
+        ) {
+          isWalking.x = 0;
+          shotVector.x = 0;
+        }
+      }
+      if (isWalking.y != 0) {
+        let step = -shotVector.y / 4;
+        isWalking.y -= step;
+        isWalking.y = Math.trunc(isWalking.y);
+        if (
+          (isWalking.y <= 0 && isWalking.y >= step) ||
+          (isWalking.y >= 0 && isWalking.y <= step)
+        ) {
+          isWalking.y = 0;
           shotVector.y = 0;
-          // isMovingY = false;
         }
       }
     } else {
-      // lutin.frameName = "lutin";
+      animationsToPlay.push({ obj: "lutin", anim: "idle" });
+      lutin.body.velocity.x = isMoving.x;
+      lutin.body.velocity.y = isMoving.y;
     }
   }
 
@@ -315,7 +371,7 @@ export class HomePage {
   }
 
   collisionHandler(obj1, obj2) {
-    console.log("test");
+    animationsToPlay.push({ obj: "lutin", anim: "stun" });
     obj2.kill();
   }
 }
