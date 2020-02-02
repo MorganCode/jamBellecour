@@ -9,20 +9,21 @@ let that;
 let game;
 // Background
 let background;
+let canon;
+// Fleches
+let arrow;
 // Player
 let goblin;
 // area
 let areas;
 // Controler
-let isMoving = {
-  x: 0,
-  y: 0
-};
+let isMoving = { x: 0, y: 0 };
+// let isMovingX = false;
+// let isMovingY = false;
 // Shot
-let shotVector = {
-  x: 0,
-  y: 0
-};
+let shotStartPoint = { x: 0, y: 0 };
+let shotVector = { x: 0, y: 0 };
+let shotAngle = 0;
 
 @Component({
   selector: "app-home",
@@ -84,20 +85,27 @@ export class HomePage {
     this.socket.emit("start-game", this.roomName);
   }
 
-  fireAim(event) {
-    shotVector = {
+  fireStart(event) {
+    // isMovingX = true;
+    // isMovingY = true;
+    shotStartPoint = {
       x: event.changedTouches[0].screenX,
       y: event.changedTouches[0].screenY
     };
   }
 
-  fireShoot(event) {
+  fireAim(event) {
     shotVector = {
-      x: (shotVector.x - event.changedTouches[0].screenX) * 10,
-      y: (shotVector.y - event.changedTouches[0].screenY) * 10
+      x: shotStartPoint.x - event.changedTouches[0].screenX,
+      y: shotStartPoint.y - event.changedTouches[0].screenY
     };
+    shotAngle = that.calcAngle(shotVector.x, -shotVector.y);
+  }
+
+  fireShoot(event) {
     console.log(shotVector);
-    isMoving = shotVector;
+    isMoving = { x: shotVector.x * 10, y: shotVector.y * 10 };
+    console.log(shotAngle);
   }
 
   sendMove() {
@@ -106,6 +114,15 @@ export class HomePage {
 
   ionViewWillLeave() {
     this.socket.disconnect();
+  }
+
+  calcHypotenuse(a, b) {
+    return Math.sqrt(a * a + b * b);
+  }
+  calcAngle(opposite, adjacent) {
+    // return Math.atan(opposite / adjacent);
+    return (Math.atan2(opposite, adjacent) * 180) / Math.PI;
+    return Math.atan(Math.abs(opposite) / Math.abs(adjacent));
   }
 
   async showToast(msg) {
@@ -121,6 +138,8 @@ export class HomePage {
   // Preload this game
   preload() {
     game.load.image("background", "assets/phaser/arena.png");
+    game.load.image("canon", "assets/phaser/canon/idle.png");
+    game.load.image("arrow", "assets/phaser/fleche_puissance.png");
     game.load.image("goblin", "assets/phaser/player.png");
     game.load.image("goblin2", "assets/phaser/player.png");
   }
@@ -143,8 +162,29 @@ export class HomePage {
     background = game.add.image(CONSTANTS.posX, CONSTANTS.posY, "background");
     background.scale.set(CONSTANTS.ratio);
 
+    // Canon
+    canon = game.add.sprite(
+      game.world.centerX,
+      CONSTANTS.bgHeight * CONSTANTS.ratio,
+      "canon"
+    );
+    //	Set the anchor of the sprite in the center, otherwise it would rotate around the top-left corner
+    canon.anchor.setTo(0.5, 0.5);
+    canon.scale.set(0.1);
+    game.physics.arcade.enable(canon);
+
+    // Fleches
+    arrow = game.add.sprite(0, 0, "arrow");
+    //	Set the anchor of the sprite in the center, otherwise it would rotate around the top-left corner
+    arrow.anchor.setTo(0.5, 0.5);
+    arrow.scale.set(0);
+    game.physics.arcade.enable(arrow);
+
     // Goblin
-    goblin = game.add.sprite(200, 600, "goblin");
+    goblin = game.add.sprite(game.world.centerX, 600, "goblin");
+    //	Set the anchor of the sprite in the center, otherwise it would rotate around the top-left corner
+    goblin.anchor.setTo(0.5, 0.5);
+
     goblin.scale.set(2);
     //  We need to enable physics on the player
     game.physics.arcade.enable(goblin);
@@ -169,30 +209,9 @@ export class HomePage {
   update() {
     goblin.body.velocity.x = isMoving.x;
     goblin.body.velocity.y = isMoving.y;
-    if (isMoving.x > 0) {
-      isMoving.x -= shotVector.x / 10;
-      isMoving.x = Math.trunc(isMoving.x);
-      if (isMoving.x < 1) isMoving.x = 0;
-      console.log(isMoving);
-    }
-    if (isMoving.x < 0) {
-      isMoving.x -= shotVector.x / 10;
-      isMoving.x = Math.trunc(isMoving.x);
-      if (isMoving.x > 1) isMoving.x = 0;
-      console.log(isMoving);
-    }
-    if (isMoving.y > 0) {
-      isMoving.y -= shotVector.y / 10;
-      isMoving.y = Math.trunc(isMoving.y);
-      if (isMoving.y < 1) isMoving.y = 0;
-      console.log(isMoving);
-    }
-    if (isMoving.y < 0) {
-      isMoving.y -= shotVector.y / 10;
-      isMoving.y = Math.trunc(isMoving.y);
-      if (isMoving.y > 1) isMoving.y = 0;
-      console.log(isMoving);
-    }
+
+    that.updateAiming();
+    that.updateShot();
 
     game.physics.arcade.overlap(
       goblin,
@@ -201,6 +220,73 @@ export class HomePage {
       null,
       this
     );
+  }
+
+  updateAiming() {
+    canon.angle = shotAngle;
+    arrow.body.velocity = { x: 0, y: 0 };
+    if (
+      (shotVector.x != 0 || shotVector.y != 0) &&
+      isMoving.x == 0 &&
+      isMoving.y == 0
+    ) {
+      // init
+      // if (arrow.position.x == 0)
+      //   arrow.body.velocity = {
+      //     x: shotStartPoint.x,
+      //     y: shotStartPoint.y
+      //   };
+
+      // arrow.body.velocity = {
+      //   x: arrow.body.velocity.x - shotVector.x,
+      //   y: arrow.body.velocity.y - shotVector.y
+      // };
+
+      console.log(shotVector);
+      arrow.position = {
+        x:
+          shotVector.x > 0 ? shotStartPoint.x - shotVector.x : shotStartPoint.x,
+        y: shotStartPoint.y
+      };
+
+      arrow.scale.set(that.calcHypotenuse(shotVector.x, shotVector.y) / 1000);
+    } else {
+      arrow.position = { x: 0, y: 0 };
+      arrow.scale.set(0);
+    }
+  }
+
+  updateShot() {
+    if (isMoving.x != 0 || isMoving.y != 0) {
+      console.log(isMoving);
+      goblin.angle = shotAngle;
+      if (isMoving.x != 0) {
+        let step = shotVector.x / 4;
+        isMoving.x -= step;
+        isMoving.x = Math.trunc(isMoving.x);
+        if (
+          (isMoving.x <= 0 && isMoving.x >= step) ||
+          (isMoving.x >= 0 && isMoving.x <= step)
+        ) {
+          isMoving.x = 0;
+          shotVector.x = 0;
+          // isMovingX = false;
+        }
+      }
+      if (isMoving.y != 0) {
+        let step = shotVector.y / 4;
+        isMoving.y -= step;
+        isMoving.y = Math.trunc(isMoving.y);
+        if (
+          (isMoving.y <= 0 && isMoving.y >= step) ||
+          (isMoving.y >= 0 && isMoving.y <= step)
+        ) {
+          isMoving.y = 0;
+          shotVector.y = 0;
+          // isMovingY = false;
+        }
+      }
+    }
   }
 
   collisionHandler(obj1, obj2) {

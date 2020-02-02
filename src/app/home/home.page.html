@@ -25,7 +25,8 @@
   <div class="game" [hidden]="!isStarted"> -->
   <div
     id="game"
-    (touchstart)="fireAim($event)"
+    (touchstart)="fireStart($event)"
+    (touchmove)="fireAim($event)"
     (touchend)="fireShoot($event)"
   ></div>
   <div class="buttons phone-only"></div>
