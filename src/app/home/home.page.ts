@@ -262,16 +262,17 @@ export class HomePage {
 
   // Update this game from events
   update() {
-    // that.updateAiming();
-    // that.updateShot();
-    // that.updateAnimations();
-    // game.physics.arcade.overlap(
-    //   lutin,
-    //   areas,
-    //   that.collisionHandler,
-    //   null,
-    //   this
-    // );
+    that.updateAiming();
+    that.updateShot();
+    that.updateAnimations();
+    
+    game.physics.arcade.overlap(
+      lutin,
+      areas,
+      that.collisionHandler,
+      null,
+      this
+    );
   }
 
   updateAiming() {
