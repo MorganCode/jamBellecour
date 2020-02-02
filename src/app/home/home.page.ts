@@ -13,7 +13,7 @@ let canon;
 // Fleches
 let arrow;
 // Player
-let goblin;
+let lutin;
 // area
 let areas;
 // Controler
@@ -24,6 +24,8 @@ let isMoving = { x: 0, y: 0 };
 let shotStartPoint = { x: 0, y: 0 };
 let shotVector = { x: 0, y: 0 };
 let shotAngle = 0;
+
+let animationsToPlay = [];
 
 @Component({
   selector: "app-home",
@@ -92,6 +94,7 @@ export class HomePage {
       x: event.changedTouches[0].screenX,
       y: event.changedTouches[0].screenY
     };
+    animationsToPlay.push({ obj: "canon", anim: "load" });
   }
 
   fireAim(event) {
@@ -106,6 +109,8 @@ export class HomePage {
     console.log(shotVector);
     isMoving = { x: shotVector.x * 10, y: shotVector.y * 10 };
     console.log(shotAngle);
+    animationsToPlay.push({ obj: "canon", anim: "fire" });
+    animationsToPlay.push({ obj: "lutin", anim: "fire" });
   }
 
   sendMove() {
@@ -120,9 +125,7 @@ export class HomePage {
     return Math.sqrt(a * a + b * b);
   }
   calcAngle(opposite, adjacent) {
-    // return Math.atan(opposite / adjacent);
     return (Math.atan2(opposite, adjacent) * 180) / Math.PI;
-    return Math.atan(Math.abs(opposite) / Math.abs(adjacent));
   }
 
   async showToast(msg) {
@@ -138,10 +141,22 @@ export class HomePage {
   // Preload this game
   preload() {
     game.load.image("background", "assets/phaser/arena.png");
-    game.load.image("canon", "assets/phaser/canon/idle.png");
+    game.load.spritesheet(
+      "canon",
+      "assets/phaser/spritesheet/canon.png",
+      100,
+      100
+    );
     game.load.image("arrow", "assets/phaser/fleche_puissance.png");
-    game.load.image("goblin", "assets/phaser/player.png");
-    game.load.image("goblin2", "assets/phaser/player.png");
+    game.load.image("lutinWalk", "assets/icon/lutin walk green.png");
+    game.load.image("lutinShot", "assets/icon/lutin shot green.png");
+    game.load.image("lutinStun", "assets/icon/lutin stun green.png");
+    game.load.spritesheet(
+      "lutin",
+      "assets/phaser/spritesheet/canon.png",
+      100,
+      100
+    );
   }
 
   create() {
@@ -170,27 +185,23 @@ export class HomePage {
     );
     //	Set the anchor of the sprite in the center, otherwise it would rotate around the top-left corner
     canon.anchor.setTo(0.5, 0.5);
-    canon.scale.set(0.1);
+    canon.scale.set(1);
     game.physics.arcade.enable(canon);
+    // canon.animations.add(NAME, FRAMES, TIME, REPEAT);
+    canon.animations.add("load", [1, 2, 3, 4, 5, 6], 10, false);
+    canon.animations.add("fire", [7, 8, 9, 10, 11, 12], 10, false);
 
     // Fleches
-    arrow = game.add.sprite(0, 0, "arrow");
+    arrow = game.add.sprite(
+      game.world.centerX + 120 * CONSTANTS.ratio,
+      CONSTANTS.bgHeight * CONSTANTS.ratio,
+      "arrow"
+    );
     //	Set the anchor of the sprite in the center, otherwise it would rotate around the top-left corner
     arrow.anchor.setTo(0.5, 0.5);
-    arrow.scale.set(0);
     game.physics.arcade.enable(arrow);
 
-    // Goblin
-    goblin = game.add.sprite(game.world.centerX, 600, "goblin");
-    //	Set the anchor of the sprite in the center, otherwise it would rotate around the top-left corner
-    goblin.anchor.setTo(0.5, 0.5);
-
-    goblin.scale.set(2);
-    //  We need to enable physics on the player
-    game.physics.arcade.enable(goblin);
-    //  Player physics properties. Give the little guy a slight bounce.
-    goblin.body.bounce.y = 0.2;
-    goblin.body.collideWorldBounds = true;
+    that.createlutin();
 
     // area
     areas = game.add.group();
@@ -200,21 +211,41 @@ export class HomePage {
     that.createAreas();
   }
 
+  createlutin() {
+    // lutin
+    lutin = game.add.sprite(game.world.centerX, 600, "lutin");
+    //	Set the anchor of the sprite in the center, otherwise it would rotate around the top-left corner
+    lutin.anchor.setTo(0.5, 0.5);
+    // lutin.animations.add(NAME, FRAMES, TIME, REPEAT);
+    lutin.animations.add("fire", [0], 10, false);
+    lutin.animations.add("stun", [1], 10, false);
+    lutin.animations.add("walk", [2], 10, false);
+    lutin.animations.add("idle", [3], 10, false);
+
+    lutin.scale.set(1);
+    //  We need to enable physics on the player
+    game.physics.arcade.enable(lutin);
+    //  Player physics properties. Give the little guy a slight bounce.
+    lutin.body.bounce.y = 0.2;
+    lutin.body.collideWorldBounds = true;
+  }
+
   createAreas() {
-    let area = areas.create(200, 300, "goblin2");
+    let area = areas.create(200, 300, "lutin2");
     area.scale.set(2);
   }
 
   // Update this game from events
   update() {
-    goblin.body.velocity.x = isMoving.x;
-    goblin.body.velocity.y = isMoving.y;
+    lutin.body.velocity.x = isMoving.x;
+    lutin.body.velocity.y = isMoving.y;
 
     that.updateAiming();
     that.updateShot();
+    that.updateAnimations();
 
     game.physics.arcade.overlap(
-      goblin,
+      lutin,
       areas,
       that.collisionHandler,
       null,
@@ -230,28 +261,12 @@ export class HomePage {
       isMoving.x == 0 &&
       isMoving.y == 0
     ) {
-      // init
-      // if (arrow.position.x == 0)
-      //   arrow.body.velocity = {
-      //     x: shotStartPoint.x,
-      //     y: shotStartPoint.y
-      //   };
-
-      // arrow.body.velocity = {
-      //   x: arrow.body.velocity.x - shotVector.x,
-      //   y: arrow.body.velocity.y - shotVector.y
-      // };
-
-      console.log(shotVector);
-      arrow.position = {
-        x:
-          shotVector.x > 0 ? shotStartPoint.x - shotVector.x : shotStartPoint.x,
-        y: shotStartPoint.y
-      };
-
       arrow.scale.set(that.calcHypotenuse(shotVector.x, shotVector.y) / 1000);
     } else {
-      arrow.position = { x: 0, y: 0 };
+      arrow.position = {
+        x: game.world.centerX + 120 * CONSTANTS.ratio,
+        y: CONSTANTS.bgHeight * CONSTANTS.ratio
+      };
       arrow.scale.set(0);
     }
   }
@@ -259,7 +274,7 @@ export class HomePage {
   updateShot() {
     if (isMoving.x != 0 || isMoving.y != 0) {
       console.log(isMoving);
-      goblin.angle = shotAngle;
+      lutin.angle = shotAngle;
       if (isMoving.x != 0) {
         let step = shotVector.x / 4;
         isMoving.x -= step;
@@ -286,7 +301,17 @@ export class HomePage {
           // isMovingY = false;
         }
       }
+    } else {
+      // lutin.frameName = "lutin";
     }
+  }
+
+  updateAnimations() {
+    animationsToPlay.forEach((a, index, object) => {
+      if (a.obj == "canon") canon.animations.play(a.anim);
+      if (a.obj == "lutin") lutin.animations.play(a.anim);
+      object.splice(index, 1);
+    });
   }
 
   collisionHandler(obj1, obj2) {
