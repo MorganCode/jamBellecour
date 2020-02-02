@@ -1,7 +1,7 @@
-import { Component } from "@angular/core";
-import { Socket } from "ngx-socket-io";
-import { ToastController } from "@ionic/angular";
-import { CONSTANTS } from "../../constants";
+import { Component } from '@angular/core';
+import { Socket } from 'ngx-socket-io';
+import { ToastController } from '@ionic/angular';
+import { CONSTANTS } from '../../constants';
 
 declare let Phaser;
 // Phaser needs
@@ -30,13 +30,13 @@ let shotAngle = 0;
 let animationsToPlay = [];
 
 @Component({
-  selector: "app-home",
-  templateUrl: "home.page.html",
-  styleUrls: ["home.page.scss"]
+  selector: 'app-home',
+  templateUrl: 'home.page.html',
+  styleUrls: ['home.page.scss']
 })
 export class HomePage {
-  userName = "";
-  roomName = "";
+  userName = '';
+  roomName = '';
   players = 0;
   isConnected = false;
   isStarted = false;
@@ -50,7 +50,7 @@ export class HomePage {
       window.innerWidth,
       window.innerHeight,
       Phaser.AUTO,
-      "game",
+      'game',
       {
         preload: this.preload,
         create: this.create,
@@ -61,32 +61,32 @@ export class HomePage {
 
   connect() {
     this.socket.connect();
-    this.socket.emit("set-name", this.userName);
+    this.socket.emit('set-name', this.userName);
 
-    this.socket.fromEvent("users-changed").subscribe(data => {
-      let user = data["user"];
-      if (data["event"] === "left") {
-        this.showToast("User left: " + user);
+    this.socket.fromEvent('users-changed').subscribe(data => {
+      let user = data['user'];
+      if (data['event'] === 'left') {
+        this.showToast('User left: ' + user);
         this.players--;
       } else {
-        this.showToast("User joined: " + user);
+        this.showToast('User joined: ' + user);
         this.players++;
         this.isConnected = true;
       }
     });
 
-    this.socket.fromEvent("move").subscribe(({ x, y, user }) => {
-      console.log("move received", x, y, user);
+    this.socket.fromEvent('move').subscribe(({ x, y, user }) => {
+      console.log('move received', x, y, user);
     });
 
-    this.socket.fromEvent("startGame").subscribe(() => {
-      console.log("LETS GO");
+    this.socket.fromEvent('startGame').subscribe(() => {
+      console.log('LETS GO');
       this.isStarted = true;
     });
   }
 
   startGame() {
-    this.socket.emit("start-game", this.roomName);
+    this.socket.emit('start-game', this.roomName);
   }
 
   fireStart(event) {
@@ -96,7 +96,7 @@ export class HomePage {
       x: event.changedTouches[0].screenX,
       y: event.changedTouches[0].screenY
     };
-    animationsToPlay.push({ obj: "canon", anim: "load" });
+    animationsToPlay.push({ obj: 'canon', anim: 'load' });
   }
 
   fireAim(event) {
@@ -112,12 +112,12 @@ export class HomePage {
     isMoving = { x: shotVector.x * 10, y: shotVector.y * 10 };
     isWalking = { x: -shotVector.x * 10, y: -shotVector.y * 10 };
     console.log(shotAngle);
-    animationsToPlay.push({ obj: "canon", anim: "fire" });
-    animationsToPlay.push({ obj: "lutin", anim: "fire" });
+    animationsToPlay.push({ obj: 'canon', anim: 'fire' });
+    animationsToPlay.push({ obj: 'lutin', anim: 'fire' });
   }
 
   sendMove() {
-    this.socket.emit("send-move", { x: 4, y: 4 });
+    this.socket.emit('send-move', { x: 4, y: 4 });
   }
 
   ionViewWillLeave() {
@@ -134,7 +134,7 @@ export class HomePage {
   async showToast(msg) {
     let toast = await this.toastCtrl.create({
       message: msg,
-      position: "top",
+      position: 'top',
       duration: 2000
     });
     toast.present();
@@ -143,18 +143,19 @@ export class HomePage {
   // PHASER
   // Preload this game
   preload() {
-    game.load.image("background", "assets/phaser/arena.png");
+    game.load.image('background', 'assets/phaser/arena.png');
+    // game.load.image('canon', 'assets/phaser/canon/idle.png');
     game.load.spritesheet(
-      "canon",
-      "assets/phaser/spritesheet/canon.png",
-      100,
-      100
+      'canon',
+      'assets/phaser/spritesheet/canon.png',
+      1000,
+      1532
     );
-    game.load.image("arrow", "assets/phaser/fleche.png");
-    game.load.image("cristal", "assets/icon/cristal.png");
+    game.load.image('arrow', 'assets/phaser/fleche.png');
+    game.load.image('cristal', 'assets/icon/cristal.png');
     game.load.spritesheet(
-      "lutin",
-      "assets/phaser/spritesheet/lutin.png",
+      'lutin',
+      'assets/phaser/spritesheet/lutin.png',
       100,
       100
     );
@@ -175,29 +176,31 @@ export class HomePage {
     }
 
     // Background
-    background = game.add.image(CONSTANTS.posX, CONSTANTS.posY, "background");
+    background = game.add.image(CONSTANTS.posX, CONSTANTS.posY, 'background');
     background.scale.set(CONSTANTS.ratio);
 
     // Canon
     canon = game.add.sprite(
       game.world.centerX,
-      CONSTANTS.bgHeight * CONSTANTS.ratio,
-      "canon"
+      (CONSTANTS.bgHeight - 100) * CONSTANTS.ratio,
+      'canon'
     );
     //	Set the anchor of the sprite in the center, otherwise it would rotate around the top-left corner
-    canon.anchor.setTo(0.5, 0.5);
-    canon.scale.set(1);
+    canon.anchor.setTo(0.5, 0.9);
+    canon.scale.set(0.1);
     game.physics.arcade.enable(canon);
     // canon.animations.add(NAME, FRAMES, TIME, REPEAT);
-    canon.animations.add("load", [1, 2, 3, 4, 5, 6], 10, false);
-    canon.animations.add("fire", [7, 8, 9, 10, 11, 12, 13], 10, false);
-    // canon.animations.add("fire", [7, 8, 9, 10, 11, 12], 10, false);
+    canon.animations.add('idle', [0], 10, false);
+    canon.animations.add('load', [1, 2, 3, 4, 5, 6], 10, false);
+    canon.animations.add('fire', [7, 8, 9, 10, 11, 12, 13], 10, false);
+
+    animationsToPlay.push({ obj: 'canon', anim: 'idle' });
 
     // Fleches
     arrow = game.add.sprite(
       game.world.centerX + 120 * CONSTANTS.ratio,
-      CONSTANTS.bgHeight * CONSTANTS.ratio,
-      "arrow"
+      (CONSTANTS.bgHeight - 100) * CONSTANTS.ratio,
+      'arrow'
     );
     //	Set the anchor of the sprite in the center, otherwise it would rotate around the top-left corner
     arrow.anchor.setTo(0.5, 0.5);
@@ -215,37 +218,43 @@ export class HomePage {
 
   createlutin() {
     // lutin
-    lutin = game.add.sprite(game.world.centerX, 600, "lutin");
+    lutin = game.add.sprite(game.world.centerX, 600, 'lutin');
     //	Set the anchor of the sprite in the center, otherwise it would rotate around the top-left corner
     lutin.anchor.setTo(0.5, 0.5);
     // lutin.animations.add(NAME, FRAMES, TIME, REPEAT);
-    lutin.animations.add("fire", [0], 10, false);
-    lutin.animations.add("stun", [1], 10, false);
+    lutin.animations.add('fire', [0], 10, false);
+    lutin.animations.add('stun', [1], 10, false);
     lutin.animations.add(
-      "walk0",
+      'walk0',
       [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
       2,
       false
     );
     lutin.animations.add(
-      "walk1",
+      'walk1',
       [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
       2,
       false
     );
     lutin.animations.add(
-      "walk2",
+      'walk2',
       [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40],
       2,
       false
     );
     lutin.animations.add(
-      "walk3",
+      'walk3',
       [41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53],
       2,
       false
     );
-    lutin.animations.add("idle", [54], 10, false);
+    lutin.animations.add(
+      'walk4',
+      [54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66],
+      2,
+      false
+    );
+    lutin.animations.add('idle', [67], 10, false);
 
     lutin.scale.set(1);
     //  We need to enable physics on the player
@@ -256,7 +265,7 @@ export class HomePage {
   }
 
   createAreas() {
-    let area = areas.create(200, 300, "cristal");
+    let area = areas.create(200, 300, 'cristal');
     area.scale.set(0.1);
   }
 
@@ -265,7 +274,7 @@ export class HomePage {
     that.updateAiming();
     that.updateShot();
     that.updateAnimations();
-    
+
     game.physics.arcade.overlap(
       lutin,
       areas,
@@ -288,10 +297,10 @@ export class HomePage {
     ) {
       arrow.scale.set(that.calcHypotenuse(shotVector.x, shotVector.y) / 1000);
     } else {
-      arrow.position = {
-        x: game.world.centerX + 120 * CONSTANTS.ratio,
-        y: CONSTANTS.bgHeight * CONSTANTS.ratio
-      };
+      // arrow.position = {
+      //   x: game.world.centerX + 120 * CONSTANTS.ratio,
+      //   y: (CONSTANTS.bgHeight - 100) * CONSTANTS.ratio
+      // };
       arrow.scale.set(0);
     }
   }
@@ -326,7 +335,7 @@ export class HomePage {
         }
       }
     } else if (isWalking.x != 0 || isWalking.y != 0) {
-      animationsToPlay.push({ obj: "lutin", anim: "walk" + bringback });
+      animationsToPlay.push({ obj: 'lutin', anim: 'walk' + bringback });
       lutin.body.velocity.x = isWalking.x;
       lutin.body.velocity.y = isWalking.y;
 
@@ -357,7 +366,7 @@ export class HomePage {
         }
       }
     } else {
-      animationsToPlay.push({ obj: "lutin", anim: "idle" });
+      animationsToPlay.push({ obj: 'lutin', anim: 'idle' });
       lutin.body.velocity.x = isMoving.x;
       lutin.body.velocity.y = isMoving.y;
     }
@@ -365,14 +374,14 @@ export class HomePage {
 
   updateAnimations() {
     animationsToPlay.forEach((a, index, object) => {
-      if (a.obj == "canon") canon.animations.play(a.anim);
-      if (a.obj == "lutin") lutin.animations.play(a.anim);
+      if (a.obj == 'canon') canon.animations.play(a.anim);
+      if (a.obj == 'lutin') lutin.animations.play(a.anim);
       object.splice(index, 1);
     });
   }
 
   collisionHandler(obj1, obj2) {
-    animationsToPlay.push({ obj: "lutin", anim: "stun" });
+    animationsToPlay.push({ obj: 'lutin', anim: 'stun' });
     obj2.kill();
   }
 }
