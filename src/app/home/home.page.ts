@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
+// import { Socket } from 'ngx-socket-io';
 import { ToastController } from '@ionic/angular';
 import { CONSTANTS } from '../../constants';
 
@@ -41,7 +41,10 @@ export class HomePage {
   isConnected = false;
   isStarted = false;
 
-  constructor(private socket: Socket, private toastCtrl: ToastController) {
+  constructor(
+    // private socket: Socket,
+    private toastCtrl: ToastController
+  ) {
     that = Object.create(this.constructor.prototype);
   }
 
@@ -59,34 +62,34 @@ export class HomePage {
     );
   }
 
-  connect() {
-    this.socket.connect();
-    this.socket.emit('set-name', this.userName);
+  // connect() {
+  //   this.socket.connect();
+  //   this.socket.emit('set-name', this.userName);
 
-    this.socket.fromEvent('users-changed').subscribe(data => {
-      let user = data['user'];
-      if (data['event'] === 'left') {
-        this.showToast('User left: ' + user);
-        this.players--;
-      } else {
-        this.showToast('User joined: ' + user);
-        this.players++;
-        this.isConnected = true;
-      }
-    });
+  //   this.socket.fromEvent('users-changed').subscribe(data => {
+  //     let user = data['user'];
+  //     if (data['event'] === 'left') {
+  //       this.showToast('User left: ' + user);
+  //       this.players--;
+  //     } else {
+  //       this.showToast('User joined: ' + user);
+  //       this.players++;
+  //       this.isConnected = true;
+  //     }
+  //   });
 
-    this.socket.fromEvent('move').subscribe(({ x, y, user }) => {
-      console.log('move received', x, y, user);
-    });
+  //   this.socket.fromEvent('move').subscribe(({ x, y, user }) => {
+  //     console.log('move received', x, y, user);
+  //   });
 
-    this.socket.fromEvent('startGame').subscribe(() => {
-      console.log('LETS GO');
-      this.isStarted = true;
-    });
-  }
+  //   this.socket.fromEvent('startGame').subscribe(() => {
+  //     console.log('LETS GO');
+  //     this.isStarted = true;
+  //   });
+  // }
 
   startGame() {
-    this.socket.emit('start-game', this.roomName);
+    // this.socket.emit('start-game', this.roomName);
   }
 
   fireStart(event) {
@@ -116,13 +119,13 @@ export class HomePage {
     animationsToPlay.push({ obj: 'lutin', anim: 'fire' });
   }
 
-  sendMove() {
-    this.socket.emit('send-move', { x: 4, y: 4 });
-  }
+  // sendMove() {
+  //   this.socket.emit('send-move', { x: 4, y: 4 });
+  // }
 
-  ionViewWillLeave() {
-    this.socket.disconnect();
-  }
+  // ionViewWillLeave() {
+  //   this.socket.disconnect();
+  // }
 
   calcHypotenuse(a, b) {
     return Math.sqrt(a * a + b * b);
